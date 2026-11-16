@@ -1,0 +1,8 @@
+node_modules/
+dist/
+public/mediapipe/
+public/models/*.task
+*.log
+.vite/
+tests/out/
+dist-e2e/

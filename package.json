@@ -1,0 +1,37 @@
+{
+  "name": "goniocam",
+  "private": true,
+  "version": "0.3.0",
+  "type": "module",
+  "description": "Goniométrie par caméra du membre supérieur et de la main — PWA 100 % locale",
+  "scripts": {
+    "models": "node scripts/fetch-models.mjs",
+    "assets": "node scripts/copy-wasm.mjs",
+    "predev": "npm run assets",
+    "dev": "vite --host",
+    "prebuild": "npm run assets",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "check:browser": "node scripts/browser-check.mjs",
+    "test:e2e:build": "vitest run tests/fixtures.test.ts && vite build --mode e2e --outDir dist-e2e",
+    "test:e2e": "node scripts/e2e-flow.mjs"
+  },
+  "dependencies": {
+    "@mediapipe/tasks-vision": "0.10.35",
+    "pdf-lib": "^1.17.1",
+    "preact": "^11.2.0"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.6",
+    "@types/node": "^26.6.6",
+    "@vitejs/plugin-basic-ssl": "^2.3.0",
+    "playwright-core": "^1.65.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8",
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.1.0"
+  }
+}
