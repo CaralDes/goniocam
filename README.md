@@ -58,7 +58,7 @@ GitHub Pages gratuit impose un dépôt **public** (le code est visible, aucune d
 
 L'application Android embarque le site, le runtime WebAssembly et les modèles (Capacitor) : aucune connexion n'est nécessaire, même au premier lancement.
 
-- **Construire** : onglet *Actions › Application Android (APK) › Run workflow*. L'APK est téléchargeable dans les *artifacts* du run. Un tag `v*` (ex. `git tag v0.4.0 && git push --tags`) crée en plus une *release* GitHub avec l'APK.
+- **Construire** : onglet *Actions › Application Android (APK) › Run workflow*. L'APK est téléchargeable dans les *artifacts* du run. Cocher l'option *release* au lancement (ou pousser un tag `v*`) publie en plus l'APK dans une *release* GitHub `v<version>`, téléchargeable directement depuis le téléphone.
 - **Installer** : ouvrir l'APK sur le téléphone, autoriser l'installation depuis cette source (Android le demande), puis autoriser la caméra au premier lancement.
 - **Signature** : sans configuration, l'APK est signé avec une clé de debug différente à chaque build (il faut désinstaller avant de mettre à jour). Pour des mises à jour transparentes, créer une clé une fois :
 
