@@ -1,5 +1,11 @@
 # Journal des changements
 
+## 0.4.0 — Distribution : site en ligne et application Android (17/11/2026)
+
+- Publication automatique sur GitHub Pages (workflow Actions : modèles officiels, tests, build, déploiement). Chemin de base configurable (`BASE`).
+- Application Android autonome (Capacitor 8) : modèles et runtime embarqués, permission caméra, exports PDF/CSV par la feuille de partage, bouton retour géré, sauvegarde cloud désactivée, icônes et écran de démarrage.
+- Workflow de construction de l'APK (debug, ou release signée via les secrets du dépôt), release GitHub sur tag `v*`.
+
 ## 0.3.0 — J3 : MVP consultation (16/11/2026)
 
 - Bilan bilatéral : toutes les étapes côté atteint puis côté sain, navigation libre entre étapes.

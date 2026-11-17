@@ -6,4 +6,5 @@ import './styles.css';
 
 render(<App />, document.getElementById('app')!);
 
-if (import.meta.env.PROD) registerSW({ immediate: true });
+if (import.meta.env.PROD && import.meta.env.MODE !== 'android') registerSW({ immediate: true });
+if (import.meta.env.MODE === 'android') import('./native').then((m) => m.setupNative());

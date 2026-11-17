@@ -4,7 +4,7 @@ Application web progressive (PWA) qui mesure les amplitudes articulaires de l'é
 
 > Outil d'aide à la mesure en cours de validation. Le goniomètre manuel reste la référence clinique. Statut réglementaire (MDR 2017/745) à valider avec la DRCI : voir le cahier des charges.
 
-Version **0.3.0 — MVP consultation** (jalons J1, J2, J3). Analyse du cahier des charges, points discutables et architecture : [`docs/ANALYSE.md`](docs/ANALYSE.md).
+Version **0.4.0** : MVP consultation (jalons J1, J2, J3), publiable en ligne et en application Android. Analyse du cahier des charges, points discutables et architecture : [`docs/ANALYSE.md`](docs/ANALYSE.md).
 
 ## Installation
 
@@ -43,6 +43,34 @@ add_header X-Content-Type-Options "nosniff" always;
 types { application/wasm wasm; }
 location = /sw.js { add_header Cache-Control "no-cache"; }
 ```
+
+## Publication en ligne (GitHub Pages)
+
+Le workflow `.github/workflows/pages.yml` publie le site à chaque push sur `main` : téléchargement des modèles officiels, tests, build sous `/<nom-du-dépôt>/`, déploiement.
+
+1. Dans le dépôt GitHub : *Settings › Pages › Build and deployment › Source* : **GitHub Actions**.
+2. Pousser sur `main` (ou lancer le workflow à la main dans l'onglet *Actions*).
+3. Le site est servi à `https://<compte>.github.io/<dépôt>/`, en HTTPS. Sur Android ou iPhone, menu du navigateur › *Installer l'application* / *Sur l'écran d'accueil* : elle fonctionne ensuite hors ligne.
+
+GitHub Pages gratuit impose un dépôt **public** (le code est visible, aucune donnée patient n'y transite). L'hébergeur (GitHub, États-Unis) ne reçoit que les requêtes de chargement des fichiers statiques, avec l'adresse IP du visiteur ; aucune image ni mesure. Pour un hébergement européen ou interne, déposer le même dossier `dist/` sur le serveur du CH ou sur vadentia.fr.
+
+## Application Android autonome (APK)
+
+L'application Android embarque le site, le runtime WebAssembly et les modèles (Capacitor) : aucune connexion n'est nécessaire, même au premier lancement.
+
+- **Construire** : onglet *Actions › Application Android (APK) › Run workflow*. L'APK est téléchargeable dans les *artifacts* du run. Un tag `v*` (ex. `git tag v0.4.0 && git push --tags`) crée en plus une *release* GitHub avec l'APK.
+- **Installer** : ouvrir l'APK sur le téléphone, autoriser l'installation depuis cette source (Android le demande), puis autoriser la caméra au premier lancement.
+- **Signature** : sans configuration, l'APK est signé avec une clé de debug différente à chaque build (il faut désinstaller avant de mettre à jour). Pour des mises à jour transparentes, créer une clé une fois :
+
+  ```bash
+  keytool -genkeypair -v -keystore goniocam.keystore -alias goniocam -keyalg RSA -keysize 4096 -validity 10000
+  base64 -w0 goniocam.keystore   # à copier dans le secret ANDROID_KEYSTORE_BASE64
+  ```
+
+  puis ajouter dans *Settings › Secrets and variables › Actions* : `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` (`goniocam`), `ANDROID_KEY_PASSWORD`. Conserver la clé hors du dépôt : la perdre empêche toute mise à jour.
+- **En local** (Android Studio ou SDK installé) : `npm run android:apk`, ou `npm run android:sync` puis ouvrir `android/` dans Android Studio.
+
+Spécificités Android : les exports PDF/CSV passent par la feuille de partage (Fichiers, Drive, messagerie…) ; le bouton retour navigue dans l'app et la met en arrière-plan depuis l'accueil, sans perdre le bilan en cours ; sauvegarde cloud Android désactivée.
 
 ## Tests et vérifications
 

@@ -9,7 +9,7 @@ import { sessionStore, bilanMeasureIds, editCapture, deleteCapture, setIndex, en
 import { buildPdf } from '../export/pdf';
 import { rawCsv, summaryCsv } from '../export/csv';
 import { APP_VERSION } from '../version';
-import { download, shareFile } from './download';
+import { download, shareFile, isNative } from './download';
 
 /** Libellé compact pour l'écran (la région est déjà en en-tête de groupe). */
 const rowLabel = (id: string, label: string) => {
@@ -93,7 +93,7 @@ export function Summary() {
       });
       const blob = new Blob([bytes as BlobPart], { type: 'application/pdf' });
       if (share) await shareFile(blob, `${fileBase}.pdf`);
-      else download(blob, `${fileBase}.pdf`);
+      else await download(blob, `${fileBase}.pdf`);
       markExported();
       setMsg('Fiche PDF générée sur l\'appareil.');
     } catch (e) {
@@ -103,10 +103,14 @@ export function Summary() {
     }
   };
 
-  const exportCsv = (raw: boolean) => {
+  const exportCsv = async (raw: boolean) => {
     const text = raw ? rawCsv(b, APP_VERSION) : summaryCsv(b, APP_VERSION);
-    download(new Blob([text], { type: 'text/csv;charset=utf-8' }), `${fileBase}${raw ? '_brut' : ''}.csv`);
-    markExported();
+    try {
+      await download(new Blob([text], { type: 'text/csv;charset=utf-8' }), `${fileBase}${raw ? '_brut' : ''}.csv`);
+      markExported();
+    } catch (e) {
+      setMsg(`Échec de l'export CSV : ${e instanceof Error ? e.message : String(e)}`);
+    }
   };
 
   const stepFor = (measureId: string) => STEPS.find((s) => s.measures.includes(measureId) && b.steps.includes(s.id));
@@ -180,10 +184,10 @@ export function Summary() {
 
       <section class="exports">
         <button class="btn primary huge" disabled={busy || !nCaptured} onClick={() => exportPdf(false)}>
-          {busy ? 'Génération…' : 'Exporter la fiche PDF'}
+          {busy ? 'Génération…' : isNative() ? 'Enregistrer / envoyer la fiche PDF' : 'Exporter la fiche PDF'}
         </button>
         <div class="row wrap">
-          {'share' in navigator && (
+          {'share' in navigator && !isNative() && (
             <button class="btn" disabled={busy || !nCaptured} onClick={() => exportPdf(true)}>Partager le PDF</button>
           )}
           <button class="btn" disabled={!nCaptured} onClick={() => exportCsv(false)}>CSV des mesures</button>

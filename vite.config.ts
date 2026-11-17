@@ -27,23 +27,36 @@ export const CSP = [
   "manifest-src 'self'",
 ].join('; ');
 
-function cspPlugin(): Plugin {
+/**
+ * Dans l'application Android (Capacitor), le pont natif est injecté sous forme de script en ligne :
+ * on autorise donc les scripts en ligne, mais connect-src reste limité à l'application.
+ */
+const CSP_ANDROID = CSP.replace("script-src 'self' 'wasm-unsafe-eval'", "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'");
+
+function cspPlugin(android: boolean): Plugin {
+  const policy = android ? CSP_ANDROID : CSP;
   return {
     name: 'goniocam-csp',
     apply: 'build',
     transformIndexHtml(html) {
-      return html.replace('<meta charset="UTF-8" />', `<meta charset="UTF-8" />\n    <meta http-equiv="Content-Security-Policy" content="${CSP}" />`);
+      return html.replace('<meta charset="UTF-8" />', `<meta charset="UTF-8" />\n    <meta http-equiv="Content-Security-Policy" content="${policy}" />`);
     },
   };
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  const android = mode === 'android';
+  return {
+  // GitHub Pages sert le site sous /<dépôt>/ : BASE=/goniocam/ ; Android : chemins relatifs.
+  base: android ? './' : (process.env.BASE ?? '/'),
   define: { __APP_VERSION__: JSON.stringify(pkg.version) },
   plugins: [
     preact(),
-    cspPlugin(),
+    cspPlugin(android),
     ...(process.env.HTTPS ? [basicSsl()] : []),
     VitePWA({
+      // Inutile dans l'APK : tous les fichiers sont déjà dans l'application.
+      disable: android,
       registerType: 'autoUpdate',
       injectRegister: false,
       includeAssets: ['icons/*.svg', 'icons/*.png'],
@@ -74,7 +87,8 @@ export default defineConfig({
       },
     }),
   ],
-  build: { target: 'es2022', sourcemap: true, chunkSizeWarningLimit: 1500 },
+  build: { target: 'es2022', sourcemap: !android, chunkSizeWarningLimit: 1500 },
   server: { host: true },
   preview: { host: true },
+  };
 });

@@ -6,3 +6,5 @@ public/models/*.task
 .vite/
 tests/out/
 dist-e2e/
+dist-android/
+android/app/release.keystore
